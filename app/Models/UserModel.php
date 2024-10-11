@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class UserModel extends Authenticatable
 {
     use HasFactory, Notifiable;
+
+    protected $table = 'usuario';
 
     /**
      * The attributes that are mass assignable.
@@ -17,19 +19,20 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'nombre_usuario',
         'email',
         'password',
+        'estado',
+        'role_id'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    protected $appends = ['role_name'];
+
     protected $hidden = [
         'password',
-        'remember_token',
+        'role',
+        "created_at",
+        "updated_at"
     ];
 
     /**
@@ -43,5 +46,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims(): array
+    {
+        return [];
     }
 }

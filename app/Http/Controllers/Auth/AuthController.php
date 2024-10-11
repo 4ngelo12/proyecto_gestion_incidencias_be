@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\UserModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -29,7 +29,7 @@ class AuthController extends Controller
         // Obtén los datos validados
         $validatedData = $validation->validated();
 
-        $user = User::create($validatedData);
+        $user = UserModel::create($validatedData);
 
         if (!$user) {
             return response()->json([
