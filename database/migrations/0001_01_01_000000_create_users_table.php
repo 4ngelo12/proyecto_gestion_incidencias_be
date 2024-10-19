@@ -19,7 +19,7 @@ return new class extends Migration
 
         Schema::create('usuario', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_usuario', length: 100);
+            $table->string('nombre_usuario', length: 50);
             $table->string('email', length: 150)->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password', length: 200);

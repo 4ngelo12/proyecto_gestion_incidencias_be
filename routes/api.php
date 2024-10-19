@@ -1,7 +1,8 @@
 <?php
 
 use App\Http\Controllers\Acciones\AccionesController;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\iamge\ImagenController;
 use App\Http\Controllers\Incidencia\CategoriaController;
 use App\Http\Controllers\Incidencia\EstadoIncidenteController;
 use App\Http\Controllers\Incidencia\IncidenciaController;
@@ -17,6 +18,7 @@ Route::post('/users/login', [AuthController::class, 'login']);
 // Users
 Route::middleware('jwt.verify')->group(function () {
     Route::get('/users/list/{id}', [UsuarioController::class, 'index']);
+    Route::get('/users/activo', [UsuarioController::class, 'usuariosActivos']);
     Route::get('/users/{id}', [UsuarioController::class, 'show']);
     Route::patch('/users/{id}', [UsuarioController::class, 'updatePartial']);
     Route::delete('/users/{id}', [UsuarioController::class, 'destroy']);
@@ -51,6 +53,7 @@ Route::middleware('jwt.verify')->group(function () {
 // Incidencias
 Route::middleware('jwt.verify')->group(function () {
     Route::get('/incidencia', [IncidenciaController::class, 'index']);
+    Route::get('/incidencia/activo', [IncidenciaController::class, 'incidentesAbiertos']);
     Route::get('/incidencia/{id}', [IncidenciaController::class, 'show']);
     Route::post('/incidencia', [IncidenciaController::class, 'store']);
     Route::delete('/incidencia/{id}', [IncidenciaController::class, 'destroy']);
@@ -63,6 +66,7 @@ Route::middleware('jwt.verify')->group(function () {
 // Acciones
 Route::middleware('jwt.verify')->group(function () {
     Route::get('/acciones', [AccionesController::class, 'index']);
+    Route::get('/acciones/usuarios', [AccionesController::class, 'topUsuariosConMasAcciones']);
     Route::get('/acciones/{id}', [AccionesController::class, 'show']);
     Route::post('/acciones', [AccionesController::class, 'store']);
     Route::patch('/acciones/{id}', [AccionesController::class, 'updatePartial']);

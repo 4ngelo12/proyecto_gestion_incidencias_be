@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Acciones;
 use App\Http\Controllers\Controller;
 use App\Models\AccionesModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class AccionesController extends Controller
@@ -21,6 +22,10 @@ class AccionesController extends Controller
             return response()->json($data, 200);
         }
 
+        foreach ($acciones as $accion) {
+            $accion->imagen_url = url('images/acciones/' . $accion->imagen);
+        }
+
         $data = [
             'message' => 'acciones encontradas',
             'status' => 200,
@@ -30,12 +35,47 @@ class AccionesController extends Controller
         return response()->json($data, 200);
     }
 
+    public function topUsuariosConMasAcciones()
+    {
+        // Obtener los 10 primeros usuarios con más acciones registradas
+        $usuarios = AccionesModel::select('usuario_id', DB::raw('count(*) as total_acciones'))
+            ->groupBy('usuario_id')
+            ->orderByDesc('total_acciones')
+            ->take(10)
+            ->with('usuario')  // Incluimos los datos de usuario
+            ->get();
+    
+        // Verificamos si hay usuarios
+        if ($usuarios->isEmpty()) {
+            return response()->json([
+                'message' => 'No se encontraron usuarios con acciones registradas',
+                'status' => 200
+            ], 200);
+        }
+    
+        // Mapeamos los resultados y agregamos los datos del usuario
+        $usuariosConDetalles = $usuarios->map(function($usuario) {
+            return [
+                'usuario_id' => $usuario->usuario_id,
+                'total_acciones' => $usuario->total_acciones,
+                'nombre_usuario' => $usuario->usuario->nombre_usuario, // Nombre del usuario
+                'email' => $usuario->usuario->email // Ejemplo adicional
+            ];
+        });
+
+        return response()->json([
+            'message' => 'Usuarios con más acciones encontradas',
+            'status' => 200,
+            'data' => $usuariosConDetalles
+        ], 200);
+    }
+
     public function store(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            'descripcion' => 'string',
-            'imagen' => 'string',
-            'fecha_accion' => 'required|date_format:d/m/Y',
+            'descripcion' => 'required|string',
+            'imagen' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'fecha_accion' => 'required|date_format:Y-m-d',
             'incidencia_id' => 'required|integer',
             'usuario_id' => 'required|integer'
         ]);
@@ -47,8 +87,15 @@ class AccionesController extends Controller
             ], 400);
         }
 
-        // Obtén los datos validados
         $validatedData = $validation->validated();
+
+        // Verificar si se ha subido una imagen
+        if ($request->hasFile('imagen')) {
+            $imagen = $request->file('imagen');
+            $nombreImagen = time() . '.' . $imagen->getClientOriginalExtension();
+            $imagen->move(public_path('images/acciones'), $nombreImagen);
+            $validatedData['imagen'] = $nombreImagen;
+        }
 
         $acciones = AccionesModel::create($validatedData);
 

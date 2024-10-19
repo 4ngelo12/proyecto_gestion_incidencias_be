@@ -15,6 +15,11 @@ class CategoriaModel extends Model
         'nombre',
     ];
 
+    protected $hidden = [
+        "created_at",
+        "updated_at"
+    ];
+
     public function incidencias()
     {
         return $this->hasMany(IncidenciaModel::class);

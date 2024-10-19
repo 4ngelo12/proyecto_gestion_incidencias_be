@@ -9,7 +9,7 @@ class AccionesModel extends Model
 {
     use HasFactory;
 
-    protected $table = 'vincidencia';
+    protected $table = 'acciones';
 
     protected $fillable = [
         'descripcion',
@@ -43,6 +43,6 @@ class AccionesModel extends Model
 
     public function getUsuarioNameAttribute()
     {
-        return $this->usuario ? $this->usuario->nombre : null;
+        return $this->usuario ? $this->usuario->nombre_usuario : null;
     }
 }

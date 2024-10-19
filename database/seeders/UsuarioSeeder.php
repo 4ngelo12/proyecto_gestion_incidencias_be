@@ -15,6 +15,7 @@ class UsuarioSeeder extends Seeder
                 'nombre_usuario' => 'admin',
                 'email' => 'admin@mail.com',
                 'password' => bcrypt('passwordAdmin'),
+                //'estado' => true,
                 'rol_id' => 1,
             ],
         ];
@@ -24,6 +25,7 @@ class UsuarioSeeder extends Seeder
             $newUser->nombre_usuario = $user['nombre_usuario'];
             $newUser->email = $user['email'];
             $newUser->password = $user['password'];
+            //$newUser->estado = $user['estado'];
             $newUser->rol_id = $user['rol_id'];
 
             $newUser->save();

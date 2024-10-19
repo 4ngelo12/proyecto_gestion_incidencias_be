@@ -13,35 +13,48 @@ return new class extends Migration
     {
         Schema::create('estado_incidente', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', length: 10)->unique();
+            $table->string('nombre', 10)->unique();
             $table->timestamps();
         });
 
         Schema::create('severidad', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', length: 15)->unique();
+            $table->string('nombre', 15)->unique();
             $table->timestamps();
         });
 
         Schema::create('categoria', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', length: 35)->unique();
+            $table->string('nombre', 35)->unique();
             $table->timestamps();
         });
 
         Schema::create('incidencia', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre', length: 50);
+            $table->string('nombre', 50);
             $table->text('descripcion')->nullable();
-            $table->string('imagen', length: 200)->nullable();
+            $table->string('imagen', 200)->nullable();
             $table->date('fecha_reporte');
             $table->date('fecha_cierre')->nullable();
             $table->boolean('estado')->default(true);
-            $table->foreignId('estado_incidente_id')->constrained(table: 'estado_incidente', indexName: 'estado_incidente_id')->cascadeOnDelete();
-            $table->foreignId('severidad_id')->constrained(table: 'severidad', indexName: 'severidad_id')->cascadeOnDelete();
-            $table->foreignId('categoria_id')->constrained(table: 'categoria', indexName: 'categoria_id')->cascadeOnDelete();
-            $table->foreignId('usuario_reporte_id')->constrained(table: 'usuario', indexName: 'fk_usuario_reporte')->cascadeOnDelete();
-            $table->foreignId('usuario_asignado_id')->constrained(table: 'usuario', indexName: 'fk_usuario_asignado')->cascadeOnDelete();
+            $table->foreignId('estado_incidente_id')->default(1)
+                ->constrained('estado_incidente') // Constrained sin pasar indexName
+                ->cascadeOnDelete();
+
+            // Clave foránea sin valor por defecto
+            $table->foreignId('severidad_id')
+                ->constrained('severidad') // Sin indexName
+                ->cascadeOnDelete();
+
+            $table->foreignId('categoria_id')
+                ->constrained('categoria') // Sin indexName
+                ->cascadeOnDelete();
+
+            // Clave foránea con valor por defecto 1 (asegúrate de que haya un registro con id 1 en usuario)
+            $table->foreignId('usuario_reporte_id')->default(1)
+                ->constrained('usuario', 'id') // Especificar la tabla y la columna si es necesario
+                ->cascadeOnDelete();
+
             $table->timestamps();
         });
     }

@@ -40,6 +40,12 @@ class RolController extends Controller
             return response()->json($data, 404);
         }
 
-        return response()->json($role, 200);
+        $data = [
+            'message' => 'Roles encontrados',
+            'status' => 200,
+            'data' => $role
+        ];
+
+        return response()->json($data, 200);
     }
 }

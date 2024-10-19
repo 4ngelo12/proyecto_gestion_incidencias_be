@@ -11,7 +11,7 @@ class IncidenciaController extends Controller
 {
     public function index()
     {
-        $incidencias = IncidenciaModel::where('estado_incidente_id', '!=', 3)->with('estado_incidente_id')->get();
+        $incidencias = IncidenciaModel::where('estado_incidente_id', '<>', 3)->with('estadoIncidente')->get();
 
         if ($incidencias->isEmpty()) {
             $data = [
@@ -21,8 +21,35 @@ class IncidenciaController extends Controller
             return response()->json($data, 200);
         }
 
+        // Añadir la URL de la imagen a cada incidencia
+        foreach ($incidencias as $incidencia) {
+            $incidencia->imagen_url = url('images/incidencias/' . $incidencia->imagen);
+        }
+
         $response = [
-            'message' => 'incidencias no encontradas',
+            'message' => 'incidencias encontradas',
+            'status' => 200,
+            'data' => $incidencias
+        ];
+
+        return response()->json($response, 200);
+    }
+
+    public function incidentesAbiertos()
+    {
+        $incidencias = IncidenciaModel::where('estado_incidente_id', '=', 1)->with('estadoIncidente')->get(['id', 'nombre']);
+
+        // $incidencias = IncidenciaModel::all(['id', 'nombre']);
+        if ($incidencias->isEmpty()) {
+            $data = [
+                'message' => 'No se econtraron incidencias',
+                'status' => 200
+            ];
+            return response()->json($data, 200);
+        }
+
+        $response = [
+            'message' => 'incidencias encontradas',
             'status' => 200,
             'data' => $incidencias
         ];
@@ -32,18 +59,31 @@ class IncidenciaController extends Controller
 
     public function store(Request $request)
     {
+        // Definir los mensajes personalizados
+        $messages = [
+            'nombre.required' => 'El campo nombre es obligatorio.',
+            'nombre.min' => 'El nombre debe tener al menos :min caracteres.',
+            'imagen.required' => 'Debes subir una imagen.',
+            'imagen.image' => 'El archivo debe ser una imagen válida.',
+            'imagen.max' => 'La imagen no debe exceder los 2MB.',
+            'fecha_reporte.required' => 'El campo fecha es obligatorio.',
+            'fecha_reporte.date_format' => 'El formato de la fecha debe ser dd/mm/yyyy.',
+            'severidad_id.required' => 'La severidad es obligatoria.',
+            'categoria_id.required' => 'La categoría es obligatoria.',
+        ];
+
         $validation = Validator::make($request->all(), [
             'nombre' => 'required|string|min:3',
-            'descripcion' => 'string',
-            'imagen' => 'string',
-            'fecha_reporte' => 'required|date_format:d/m/Y',
-            'estado_incidente_id' => 'required|integer',
+            'descripcion' => 'nullable|string',
+            'imagen' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'fecha_reporte' => 'required|date_format:Y-m-d',
+            'estado_incidente_id' => 'integer',
             'severidad_id' => 'required|integer',
             'categoria_id' => 'required|integer',
-            'usuario_reporte_id' => 'required|integer',
-            'usuario_asignado_id' => 'required|integer'
-        ]);
+            'usuario_reporte_id' => 'integer'
+        ], $messages);
 
+        // Verificar si la validación falla
         if ($validation->fails()) {
             return response()->json([
                 'message' => 'Hubo un error al validar los datos, por favor verifica los campos',
@@ -51,11 +91,19 @@ class IncidenciaController extends Controller
             ], 400);
         }
 
-        // Obtén los datos validados
         $validatedData = $validation->validated();
+
+        // Verificar si se ha subido una imagen
+        if ($request->hasFile('imagen')) {
+            $imagen = $request->file('imagen');
+            $nombreImagen = time() . '.' . $imagen->getClientOriginalExtension();
+            $imagen->move(public_path('images/incidencias'), $nombreImagen);
+            $validatedData['imagen'] = $nombreImagen;
+        }
 
         $incidencias = IncidenciaModel::create($validatedData);
 
+        // Verificar si la incidencia se creó correctamente
         if (!$incidencias) {
             return response()->json([
                 'message' => 'Error al registrar la incidencia',
@@ -63,14 +111,16 @@ class IncidenciaController extends Controller
             ], 500);
         }
 
+        // Preparar la respuesta exitosa
         $response = [
-            'message' => 'incidencia registrada correctamente',
+            'message' => 'Incidencia registrada correctamente',
             'status' => 201,
             'data' => $incidencias
         ];
 
         return response()->json($response, 201);
     }
+
 
     public function show(string $id)
     {
@@ -108,6 +158,7 @@ class IncidenciaController extends Controller
             'nombre' => 'string|min:3',
             'descripcion' => 'string',
             'imagen' => 'string',
+            'estado_incidente_id' => 'integer',
             'severidad_id' => 'integer',
             'categoria_id' => 'integer',
         ]);
@@ -169,7 +220,8 @@ class IncidenciaController extends Controller
         return response()->json($response, 204);
     }
 
-    public function cerrarIncidencia(Request $request, string $id) {
+    public function cerrarIncidencia(Request $request, string $id)
+    {
         $incidencia = IncidenciaModel::find($id);
 
         if (!$incidencia) {
@@ -180,7 +232,7 @@ class IncidenciaController extends Controller
         }
 
         $validation = Validator::make($request->all(), [
-            'fecha_cierre' => 'required|date_format:d/m/Y',
+            'fecha_cierre' => 'required|date_format:Y-m-d',
             'estado_incidente_id' => 'required|integer',
         ]);
 

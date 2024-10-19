@@ -30,6 +30,28 @@ class UsuarioController extends Controller
         return response()->json($data, 200);
     }
 
+    public function usuariosActivos()
+    {
+        $user = UserModel::where('estado', '=', 1)
+            ->get(['id', 'nombre_usuario']);
+
+        if ($user->isEmpty()) {
+            $data = [
+                'message' => 'No se encontraron usuarios activos',
+                'status' => 200
+            ];
+            return response()->json($data, 200);
+        }
+
+        $response = [
+            'message' => 'Usuarios activos encontrados',
+            'status' => 200,
+            'data' => $user
+        ];
+
+        return response()->json($response, 200);
+    }
+
     public function show(string $id)
     {
         $user = UserModel::find($id);

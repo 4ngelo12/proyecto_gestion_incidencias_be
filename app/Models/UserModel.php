@@ -6,40 +6,42 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class UserModel extends Authenticatable
+class UserModel extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
     protected $table = 'usuario';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'nombre_usuario',
         'email',
-        'password',
         'estado',
-        'role_id'
+        'password',
+        'rol_id'
     ];
-
-    protected $appends = ['role_name'];
 
     protected $hidden = [
         'password',
-        'role',
+        'rol',
+        'email_verified_at',
         "created_at",
         "updated_at"
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    protected $appends = ['rol_name'];
+
+    public function rol()
+    {
+        return $this->belongsTo(RolModel::class, 'rol_id');
+    }
+
+    public function getRolNameAttribute()
+    {
+        return $this->rol ? $this->rol->nombre : null;
+    }
+
     protected function casts(): array
     {
         return [
@@ -48,18 +50,13 @@ class UserModel extends Authenticatable
         ];
     }
 
-    /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
-     */
     public function getJWTIdentifier()
     {
-        return $this->getKey();
+        return $this->getKey(); // Retorna la clave primaria del usuario
     }
 
-    public function getJWTCustomClaims(): array
+    public function getJWTCustomClaims()
     {
-        return [];
+        return []; // Retorna un arreglo de reclamos personalizados
     }
 }

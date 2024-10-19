@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
 use App\Models\UserModel;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -13,10 +14,10 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validation = Validator::make($request->all(), [
-            'name' => 'required|string|min:3',
-            'email' => 'required|email|unique:users',
+            'nombre_usuario' => 'required|string|min:3',
+            'email' => 'required|email|unique:usuario',
             'password' => 'required|string|min:6',
-            'role_id' => 'required|integer|exists:roles,id'
+            'rol_id' => 'required|integer|exists:rol,id'
         ]);
 
         if ($validation->fails()) {
@@ -76,7 +77,7 @@ class AuthController extends Controller
             $user = JWTAuth::user();
 
             // Verificar si el usuario está desactivado
-            if (!$user->state) {
+            if (!$user->estado) {
                 return response()->json([
                     'message' => 'El usuario está desactivado',
                     'status' => 403
@@ -86,18 +87,23 @@ class AuthController extends Controller
 
             // Definir reclamaciones personalizadas (incluyendo 'role_id')
             $customClaims = [
-                'role' => $user->role->name,
+                'role' => $user->rol->nombre,
+                'email' => $user->email,
+                'userName' => $user->nombre_usuario,
             ];
 
             // Generar el token JWT con reclamaciones personalizadas
             $token = JWTAuth::claims($customClaims)->attempt($validatedData);
 
             return response()->json([
+                'message' => 'valores no encontrados',
+                'status' => 200,
                 'token' => $token
             ], 200);
         } catch (JWTException $e) {
             return response()->json([
                 'message' => 'No se pudo crear el token de acceso',
+                'status' => 403,
                 'error' => $e->getMessage()
             ], 500);
         }
