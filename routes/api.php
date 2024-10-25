@@ -2,11 +2,11 @@
 
 use App\Http\Controllers\Acciones\AccionesController;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\iamge\ImagenController;
 use App\Http\Controllers\Incidencia\CategoriaController;
 use App\Http\Controllers\Incidencia\EstadoIncidenteController;
 use App\Http\Controllers\Incidencia\IncidenciaController;
 use App\Http\Controllers\Incidencia\SeveridadController;
+use App\Http\Controllers\Pdf\ReporteController;
 use App\Http\Controllers\Usuario\RolController;
 use App\Http\Controllers\Usuario\UsuarioController;
 use Illuminate\Support\Facades\Route;
@@ -57,7 +57,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::get('/incidencia/{id}', [IncidenciaController::class, 'show']);
     Route::post('/incidencia', [IncidenciaController::class, 'store']);
     Route::delete('/incidencia/{id}', [IncidenciaController::class, 'destroy']);
-    Route::patch('/incidencia/{id}', [IncidenciaController::class, 'updatePartial']);
+    Route::put('/incidencia/{id}', [IncidenciaController::class, 'updatePartial']);
     Route::patch('/incidencia/cerrar/{id}', [IncidenciaController::class, 'cerrarIncidencia']);
 });
 
@@ -70,4 +70,10 @@ Route::middleware('jwt.verify')->group(function () {
     Route::get('/acciones/{id}', [AccionesController::class, 'show']);
     Route::post('/acciones', [AccionesController::class, 'store']);
     Route::patch('/acciones/{id}', [AccionesController::class, 'updatePartial']);
+});
+
+
+// Reportes
+Route::middleware('jwt.verify')->group(function () {
+    Route::get('reporte/{idUsuario}/incidencias/{id}/pdf', [ReporteController::class, 'generarPDF']);
 });

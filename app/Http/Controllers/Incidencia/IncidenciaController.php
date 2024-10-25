@@ -120,8 +120,7 @@ class IncidenciaController extends Controller
 
         return response()->json($response, 201);
     }
-
-
+    
     public function show(string $id)
     {
         $incidencia = IncidenciaModel::find($id);
@@ -145,24 +144,25 @@ class IncidenciaController extends Controller
 
     public function updatePartial(Request $request, string $id)
     {
+        // Busca la incidencia por su ID
         $incidencia = IncidenciaModel::find($id);
 
         if (!$incidencia) {
             return response()->json([
-                'message' => 'incidencia no encontrada',
+                'message' => 'Incidencia no encontrada',
                 'status' => 404
             ], 404);
         }
 
         $validation = Validator::make($request->all(), [
-            'nombre' => 'string|min:3',
-            'descripcion' => 'string',
-            'imagen' => 'string',
-            'estado_incidente_id' => 'integer',
-            'severidad_id' => 'integer',
-            'categoria_id' => 'integer',
+            'nombre' => 'required|string|min:3',
+            'descripcion' => 'nullable|string',
+            'fecha_reporte' => 'required|date_format:Y-m-d',
+            'severidad_id' => 'required|integer',
+            'categoria_id' => 'required|integer'
         ]);
 
+        // Verificar si la validación falla
         if ($validation->fails()) {
             return response()->json([
                 'message' => 'Hubo un error al validar los datos, por favor verifica los campos',
@@ -170,20 +170,11 @@ class IncidenciaController extends Controller
             ], 400);
         }
 
-        // Obtén los datos validados
         $validatedData = $validation->validated();
-
-        $incidencia->fill($validatedData);
-
-        if (!$incidencia->save()) {
-            return response()->json([
-                'message' => 'Error actualizando la incidencia',
-                'status' => 500
-            ], 500);
-        }
+        $incidencia->update($validatedData);
 
         $response = [
-            'message' => 'Datos de la incidencia actualizados correctamente',
+            'message' => 'La información del usuario ha sido actualizada correctamente',
             'status' => 200,
             'data' => $incidencia
         ];

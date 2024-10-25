@@ -86,8 +86,8 @@ class UsuarioController extends Controller
 
         $validation = Validator::make($request->all(), [
             'name' => 'string|min:3',
-            'email' => 'email|unique:users,email,' . $id,
-            'state' => 'required|boolean'
+            'email' => 'email|unique:usuario,email,' . $id,
+            'state' => 'boolean'
         ]);
 
         if ($validation->fails()) {
