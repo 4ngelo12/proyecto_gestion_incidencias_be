@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Acciones;
 
 use App\Http\Controllers\Controller;
 use App\Models\AccionesModel;
+use App\Models\IncidenciaModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -44,7 +45,7 @@ class AccionesController extends Controller
             ->take(10)
             ->with('usuario')  // Incluimos los datos de usuario
             ->get();
-    
+
         // Verificamos si hay usuarios
         if ($usuarios->isEmpty()) {
             return response()->json([
@@ -52,9 +53,9 @@ class AccionesController extends Controller
                 'status' => 200
             ], 200);
         }
-    
+
         // Mapeamos los resultados y agregamos los datos del usuario
-        $usuariosConDetalles = $usuarios->map(function($usuario) {
+        $usuariosConDetalles = $usuarios->map(function ($usuario) {
             return [
                 'usuario_id' => $usuario->usuario_id,
                 'total_acciones' => $usuario->total_acciones,
@@ -89,7 +90,24 @@ class AccionesController extends Controller
 
         $validatedData = $validation->validated();
 
-        // Verificar si se ha subido una imagen
+        // Obtener la incidencia para verificar su fecha de registro
+        $incidencia = IncidenciaModel::find($validatedData['incidencia_id']);
+        if (!$incidencia) {
+            return response()->json([
+                'message' => 'Incidencia no encontrada',
+                'status' => 404
+            ], 404);
+        }
+
+        // Validar que la fecha_accion sea mayor a la fecha_reporte de la incidencia
+        if ($validatedData['fecha_accion'] <= $incidencia->fecha_reporte) {
+            return response()->json([
+                'message' => 'La fecha de cierre debe ser mayor a la fecha de registro de la incidencia',
+                'status' => 400
+            ], 400);
+        }
+
+        // Procesar la imagen si se ha subido
         if ($request->hasFile('imagen')) {
             $imagen = $request->file('imagen');
             $nombreImagen = time() . '.' . $imagen->getClientOriginalExtension();
@@ -106,13 +124,11 @@ class AccionesController extends Controller
             ], 500);
         }
 
-        $response = [
-            'message' => 'accion registrada correctamente',
+        return response()->json([
+            'message' => 'Acción registrada correctamente',
             'status' => 201,
             'data' => $acciones
-        ];
-
-        return response()->json($response, 201);
+        ], 201);
     }
 
     public function show(string $id)

@@ -75,5 +75,6 @@ Route::middleware('jwt.verify')->group(function () {
 
 // Reportes
 Route::middleware('jwt.verify')->group(function () {
-    Route::get('reporte/{idUsuario}/incidencias/{id}/pdf', [ReporteController::class, 'generarPDF']);
+    Route::get('reporte/{idUsuario}/incidencia/{id}/pdf', [ReporteController::class, 'generarPDFIncidencia']);
+    Route::get('reporte/{idUsuario}/acciones/{id}/pdf', [ReporteController::class, 'generarPDFAccion']);
 });

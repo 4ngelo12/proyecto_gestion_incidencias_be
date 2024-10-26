@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Incidencia</title>
+    <title>Reporte de Acción</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,7 +15,7 @@
         }
 
         h3 {
-            margin-top: 20px; /* Espacio entre h3 y la imagen */
+            margin-top: 20px;
         }
 
         ul {
@@ -30,7 +30,7 @@
             footer: html_myfooter;
         }
 
-        .imagen-incidencia {
+        .imagen-accion {
             max-width: 100%;
             height: auto;
             margin: 1.25rem 6.875rem;
@@ -40,32 +40,32 @@
 
 <body>
     <img src="{{ 'data:image/png;base64,'.base64_encode(file_get_contents($imagePath)) }}" width="75px" height="75px">
-    <h1>Reporte de Incidencia</h1>
+    <h1>Reporte de Accion</h1>
 
     <p><strong>Fecha de Reporte:</strong> {{ \Carbon\Carbon::now()->format('d/m/Y') }}</p>
     <p><strong>Generado por:</strong> {{ $usuario->nombre_usuario }} </p>
 
     <ul>
-        <li><strong>Nombre:</strong> {{ $incidencia->nombre }}</li>
-        <li><strong>Descripción:</strong> {{ $incidencia->descripcion }}</li>
-        <li><strong>Estado:</strong> {{ $incidencia->estado_incidente_name }}</li>
-        <li><strong>Fecha de Reporte:</strong> {{ $incidencia->fecha_reporte }}</li>
-        <li><strong>Grado de Severidad:</strong> {{ $incidencia->severidad_name }}</li>
-        <li><strong>Categoria:</strong> {{ $incidencia->categoria_name }}</li>
+        <li><strong>Descripción:</strong> {{ $accion->descripcion }}</li>
+        <li><strong>Fecha de Acción:</strong> {{ $accion->fecha_accion }}</li>
+        <li><strong>Fecha de Cierre:</strong> {{ $accion->fecha_cierre }}</li>
+        <li><strong>Estado:</strong> {{ $accion->estado }}</li>
+        <li><strong>Incidencia Cerrada:</strong> {{ $accion->incidencia_name }}</li>
+        <li><strong>Usuario:</strong> {{ $accion->usuario_name }}</li>
     </ul>
 
-    @if ($incidencia->imagen) <!-- Asegúrate de que el campo imagen_url esté definido -->
+    @if ($accion->imagen)
         <div>
             <h3>Imágenes Relacionadas</h3>
         </div>
 
         <div>
             <img 
-            src="{{ 'data:image/png;base64,'.base64_encode(file_get_contents(public_path('images/incidencias/'.$incidencia->imagen))) }}" 
-            alt="Imagen de la incidencia" 
+            src="{{ 'data:image/png;base64,'.base64_encode(file_get_contents(public_path('images/acciones/'.$accion->imagen))) }}" 
+            alt="Imagen de la accion" 
             width="500px" 
             height="500px" 
-            class="imagen-incidencia">
+            class="imagen-accion">
         </div>
     @endif
 
