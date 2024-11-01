@@ -39,7 +39,7 @@
 </head>
 
 <body>
-    <img src="{{ 'data:image/png;base64,'.base64_encode(file_get_contents($imagePath)) }}" width="75px" height="75px">
+    <img src="{{ 'data:image/png;base64,'.base64_encode(file_get_contents($imagePath)) }}" width="220px" height="75px">
     <h1>Reporte de Accion</h1>
 
     <p><strong>Fecha de Reporte:</strong> {{ \Carbon\Carbon::now()->format('d/m/Y') }}</p>

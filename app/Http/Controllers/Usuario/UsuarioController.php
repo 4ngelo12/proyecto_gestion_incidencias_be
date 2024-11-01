@@ -110,6 +110,35 @@ class UsuarioController extends Controller
         return response()->json($response, 200);
     }
 
+    public function recovery(string $id)
+    {
+        $user = UserModel::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'El usuario no fue encontrado',
+                'status' => 404
+            ], 404);
+        }
+
+        $user->estado = true;
+
+        // Guardar los cambios en la base de datos
+        if (!$user->save()) {
+            return response()->json([
+                'message' => 'Error al reactivado el usuario',
+                'status' => 500
+            ], 500);
+        }
+
+        $response = [
+            'message' => 'Usuario reactivado',
+            'status' => 200
+        ];
+
+        return response()->json($response, 200);
+    }
+
     public function destroy(string $id)
     {
         $user = UserModel::find($id);
@@ -121,7 +150,7 @@ class UsuarioController extends Controller
             ], 404);
         }
 
-        $user->state = false;
+        $user->estado = false;
 
         // Guardar los cambios en la base de datos
         if (!$user->save()) {

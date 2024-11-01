@@ -39,7 +39,6 @@ class IncidenciaController extends Controller
     {
         $incidencias = IncidenciaModel::where('estado_incidente_id', '=', 1)->with('estadoIncidente')->get(['id', 'nombre']);
 
-        // $incidencias = IncidenciaModel::all(['id', 'nombre']);
         if ($incidencias->isEmpty()) {
             $data = [
                 'message' => 'No se econtraron incidencias',
@@ -182,35 +181,6 @@ class IncidenciaController extends Controller
         return response()->json($response, 200);
     }
 
-    public function destroy(string $id)
-    {
-        $incidencia = IncidenciaModel::find($id);
-
-        if (!$incidencia) {
-            return response()->json([
-                'message' => 'La incidencia no fue encontrada',
-                'status' => 404
-            ], 404);
-        }
-
-        $incidencia->state = false;
-
-        // Guardar los cambios en la base de datos
-        if (!$incidencia->save()) {
-            return response()->json([
-                'message' => 'Error al eliminar la incidencia',
-                'status' => 500
-            ], 500);
-        }
-
-        $response = [
-            'message' => 'Incidencia Eliminada',
-            'status' => 204
-        ];
-
-        return response()->json($response, 204);
-    }
-
     public function cerrarIncidencia(Request $request, string $id)
     {
         $incidencia = IncidenciaModel::find($id);
@@ -253,5 +223,34 @@ class IncidenciaController extends Controller
         ];
 
         return response()->json($response, 200);
+    }
+
+    public function destroy(string $id)
+    {
+        $incidencia = IncidenciaModel::find($id);
+
+        if (!$incidencia) {
+            return response()->json([
+                'message' => 'La incidencia no fue encontrada',
+                'status' => 404
+            ], 404);
+        }
+
+        $incidencia->estado_incidente_id = 3;
+
+        // Guardar los cambios en la base de datos
+        if (!$incidencia->save()) {
+            return response()->json([
+                'message' => 'Error al eliminar la incidencia',
+                'status' => 500
+            ], 500);
+        }
+
+        $response = [
+            'message' => 'Incidencia Eliminada',
+            'status' => 204
+        ];
+
+        return response()->json($response, 204);
     }
 }

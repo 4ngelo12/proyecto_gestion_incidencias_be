@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Acciones\AccionesController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Correos\CorreosController;
 use App\Http\Controllers\Incidencia\CategoriaController;
 use App\Http\Controllers\Incidencia\EstadoIncidenteController;
 use App\Http\Controllers\Incidencia\IncidenciaController;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 //Auth
 Route::post('/users/register', [AuthController::class, 'register']);
 Route::post('/users/login', [AuthController::class, 'login']);
+Route::post('/reset-password', [AuthController::class, 'changePassword']);
 
 // Users
 Route::middleware('jwt.verify')->group(function () {
@@ -21,6 +23,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::get('/users/activo', [UsuarioController::class, 'usuariosActivos']);
     Route::get('/users/{id}', [UsuarioController::class, 'show']);
     Route::patch('/users/{id}', [UsuarioController::class, 'updatePartial']);
+    Route::patch('/users/recovery/{id}', [UsuarioController::class, 'recovery']);
     Route::delete('/users/{id}', [UsuarioController::class, 'destroy']);
 });
 
@@ -56,9 +59,9 @@ Route::middleware('jwt.verify')->group(function () {
     Route::get('/incidencia/activo', [IncidenciaController::class, 'incidentesAbiertos']);
     Route::get('/incidencia/{id}', [IncidenciaController::class, 'show']);
     Route::post('/incidencia', [IncidenciaController::class, 'store']);
-    Route::delete('/incidencia/{id}', [IncidenciaController::class, 'destroy']);
     Route::put('/incidencia/{id}', [IncidenciaController::class, 'updatePartial']);
     Route::patch('/incidencia/cerrar/{id}', [IncidenciaController::class, 'cerrarIncidencia']);
+    Route::delete('/incidencia/{id}', [IncidenciaController::class, 'destroy']);
 });
 
 /* ============================== Acciones ============================== */
@@ -78,3 +81,6 @@ Route::middleware('jwt.verify')->group(function () {
     Route::get('reporte/{idUsuario}/incidencia/{id}/pdf', [ReporteController::class, 'generarPDFIncidencia']);
     Route::get('reporte/{idUsuario}/acciones/{id}/pdf', [ReporteController::class, 'generarPDFAccion']);
 });
+
+// Correo
+Route::post('correo/recovery/password', [CorreosController::class, 'store']);
